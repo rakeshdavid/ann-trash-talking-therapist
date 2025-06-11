@@ -1,9 +1,8 @@
 {
-  "version": 2,
-  "framework": "nextjs",
   "functions": {
-    "app/api/**/route.js": { "runtime": "nodejs20.x", "maxDuration": 30 },
-    "app/api/**/route.ts": { "runtime": "nodejs20.x", "maxDuration": 30 }
+    "app/api/**/*.js": {
+      "maxDuration": 30
+    }
   },
   "headers": [
     {
@@ -28,7 +27,7 @@
       ]
     },
     {
-      "source": "/(.*\.(js|css|woff2?|png|jpe?g|gif|svg|webp|avif|ico))$",
+      "source": "/(.*\\.(js|css|woff2?|png|jpe?g|gif|svg|webp|avif|ico))$",
       "headers": [
         {
           "key": "Cache-Control",
@@ -36,6 +35,5 @@
         }
       ]
     }
-  ],
-  "env": { "NODE_VERSION": "20.x" }
+  ]
 }
