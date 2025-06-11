@@ -29,6 +29,8 @@
     "@react-aria/visually-hidden": "3.8.12",
     "@uiw/codemirror-extensions-langs": "^4.22.1",
     "@uiw/react-codemirror": "^4.22.1",
+    "@vercel/analytics": "^1.1.1",
+    "@vercel/speed-insights": "^1.0.2",
     "ahooks": "^3.8.1",
     "ai": "^3.2.15",
     "clsx": "2.1.1",

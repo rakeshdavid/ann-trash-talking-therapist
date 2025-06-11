@@ -2,6 +2,8 @@ import "@/styles/globals.css";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { Providers } from "./providers";
 
@@ -105,6 +107,8 @@ export default function RootLayout({
             {/* <NavBar /> */}
             {children}
           </main>
+          <Analytics />
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
