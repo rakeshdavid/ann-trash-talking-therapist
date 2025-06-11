@@ -32,6 +32,7 @@ export const STT_LANGUAGE_LIST = [
   { label: 'French', value: 'fr', key: 'fr' },
   { label: 'German', value: 'de', key: 'de' },
   { label: 'Greek', value: 'el', key: 'el' },
+  { label: 'Hindi', value: 'hi', key: 'hi' },
   { label: 'Hungarian', value: 'hu', key: 'hu' },
   { label: 'Indonesian', value: 'id', key: 'id' },
   { label: 'Italian', value: 'it', key: 'it' },

@@ -1,33 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
-    const apiKey = process.env.HEYGEN_API_KEY;
-    
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "API key not configured" },
-        { status: 500 }
-      );
+    if (!HEYGEN_API_KEY) {
+      throw new Error("API key is missing from .env");
     }
 
-    const response = await fetch(
+    const res = await fetch(
       "https://api.heygen.com/v1/streaming.create_token",
       {
         method: "POST",
         headers: {
-          "x-api-key": apiKey,
+          "x-api-key": HEYGEN_API_KEY,
         },
-      }
+      },
     );
+    const data = await res.json();
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    return new Response(data.data.token, {
+      status: 200,
+    });
   } catch (error) {
-    console.error("Error fetching access token:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch access token" },
-      { status: 500 }
-    );
+    console.error("Error retrieving access token:", error);
+
+    return new Response("Failed to retrieve access token", {
+      status: 500,
+    });
   }
 }
