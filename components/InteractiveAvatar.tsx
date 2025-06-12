@@ -42,8 +42,6 @@ export default function InteractiveAvatar() {
   const [stream, setStream] = useState<MediaStream>();
   const [debug, setDebug] = useState<string>();
   const [knowledgeId, setKnowledgeId] = useState<string>("36c157ae93e24f6fae33d3f502c9ca4c");
-  // const [knowledgeId, setKnowledgeId] = useState<string>("0a38b03a1ba345d3960bcbfa97d398cb");
-  // const [avatarId, setAvatarId] = useState<string>("Santa_Fireplace_Front_public");
   const [avatarId, setAvatarId] = useState<string>("Ann_Therapist_public");
   const [language, setLanguage] = useState<string>("en");
   const [data, setData] = useState<StartAvatarResponse>();
@@ -104,7 +102,7 @@ export default function InteractiveAvatar() {
         knowledgeId: knowledgeId,
         voice: {
           rate: 1.5,
-          emotion: VoiceEmotion.EXCITED,
+          emotion: VoiceEmotion.BROADCASTER,
         },
         language: language,
         disableIdleTimeout: true,
