@@ -102,7 +102,7 @@ export default function InteractiveAvatar() {
         knowledgeId: knowledgeId,
         voice: {
           rate: 1.5,
-          emotion: VoiceEmotion.BROADCASTER,
+          emotion: VoiceEmotion.SOOTHING,
         },
         language: language,
         disableIdleTimeout: true,
