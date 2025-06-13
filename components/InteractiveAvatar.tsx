@@ -1,67 +1,43 @@
 "use client";
 
-import type { StartAvatarResponse } from "@heygen/streaming-avatar";
-import {
-  UnifrakturMaguntia,
-} from "next/font/google";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Lottie from "lottie-react";
 import StreamingAvatar, {
   AvatarQuality,
   StreamingEvents,
-  TaskMode,
-  TaskType,
   VoiceEmotion,
 } from "@heygen/streaming-avatar";
-import {
-  Button,
-  Card,
-  CardBody,
-  Spinner,
-  Select,
-  SelectItem,
-  Link,
-} from "@nextui-org/react";
-import { useEffect, useRef, useState } from "react";
-import { useTheme } from "next-themes";
-import Image from "next/image";
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import Lottie from 'lottie-react';
-import loadingAnimation from '@/public/Maslow Loading Animation.json';
 
-import { AVATARS, STT_LANGUAGE_LIST } from "@/app/lib/constants";
-
-// Move font loader to module scope
-const unifrakturMaguntia = UnifrakturMaguntia({
-  subsets: ["latin"],
-  variable: "--font-unifraktur-maguntia",
-  weight: "400",
-});
+import loadingAnimation from "@/public/Maslow Loading Animation.json";
+import { STT_LANGUAGE_LIST } from "@/app/lib/constants";
 
 export default function InteractiveAvatar() {
-  const { theme } = useTheme();
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [stream, setStream] = useState<MediaStream>();
-  const [debug, setDebug] = useState<string>();
-  const [knowledgeId, setKnowledgeId] = useState<string>("36c157ae93e24f6fae33d3f502c9ca4c");
-  const [avatarId, setAvatarId] = useState<string>("Ann_Therapist_public");
+  const [knowledgeId] = useState<string>(
+    process.env.NEXT_PUBLIC_KNOWLEDGE_ID!,
+  );
+  const [avatarId] = useState<string>(process.env.NEXT_PUBLIC_AVATAR_ID!);
   const [language, setLanguage] = useState<string>("en");
-  const [data, setData] = useState<StartAvatarResponse>();
-  const [text, setText] = useState<string>("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const mediaStream = useRef<HTMLVideoElement>(null);
   const avatar = useRef<StreamingAvatar | null>(null);
-  const [chatMode, setChatMode] = useState("text_mode");
-  const [isUserTalking, setIsUserTalking] = useState(false);
-  let sessionTimeout: NodeJS.Timeout | null = null; // Declare a variable to hold the timeout ID
+  let sessionTimeout: NodeJS.Timeout | null = null;
 
   async function fetchAccessToken() {
     try {
       const response = await fetch("/api/get-access-token", {
         method: "POST",
       });
+      if (!response.ok) {
+        throw new Error(`Failed to fetch access token: ${response.statusText}`);
+      }
       const token = await response.text();
-      console.log("Access Token:", token); // Log the token to verify
       return token;
     } catch (error) {
       console.error("Error fetching access token:", error);
+      // Optionally, update UI to show an error message
     }
     return "";
   }
@@ -69,57 +45,33 @@ export default function InteractiveAvatar() {
   async function startSession() {
     setIsLoadingSession(true);
     const newToken = await fetchAccessToken();
-
-    avatar.current = new StreamingAvatar({
-      token: newToken,
-    });
-    avatar.current.on(StreamingEvents.AVATAR_START_TALKING, (e) => {
-      console.log("Avatar started talking", e);
-    });
-    avatar.current.on(StreamingEvents.AVATAR_STOP_TALKING, (e) => {
-      console.log("Avatar stopped talking", e);
-    });
+    avatar.current = new StreamingAvatar({ token: newToken });
+    avatar.current.on(StreamingEvents.AVATAR_START_TALKING, (_e) => {});
+    avatar.current.on(StreamingEvents.AVATAR_STOP_TALKING, (_e) => {});
     avatar.current.on(StreamingEvents.STREAM_DISCONNECTED, () => {
-      console.log("Stream disconnected");
       endSession();
     });
     avatar.current?.on(StreamingEvents.STREAM_READY, (event) => {
-      console.log(">>>>> Stream ready:", event.detail);
       setStream(event.detail);
     });
-    avatar.current?.on(StreamingEvents.USER_START, (event) => {
-      console.log(">>>>> User started talking:", event);
-      setIsUserTalking(true);
-    });
-    avatar.current?.on(StreamingEvents.USER_STOP, (event) => {
-      console.log(">>>>> User stopped talking:", event);
-      setIsUserTalking(false);
-    });
+    avatar.current?.on(StreamingEvents.USER_START, (_event) => {});
+    avatar.current?.on(StreamingEvents.USER_STOP, (_event) => {});
     try {
-      const res = await avatar.current.createStartAvatar({
+      await avatar.current.createStartAvatar({
         quality: AvatarQuality.Medium,
         avatarName: avatarId,
         knowledgeId: knowledgeId,
-        voice: {
-          rate: 1.5,
-          emotion: VoiceEmotion.SOOTHING,
-        },
+        voice: { rate: 1.5, emotion: VoiceEmotion.EXCITED },
         language: language,
         disableIdleTimeout: true,
       });
-
-      setData(res);
-      await avatar.current?.startVoiceChat({
-        isInputAudioMuted: false,
-      });
-      setChatMode("voice_mode");
-
-      // Automatically end the session after 10 minutes
+      await avatar.current?.startVoiceChat({ isInputAudioMuted: false });
       sessionTimeout = setTimeout(() => {
         endSession();
-      }, 10 * 60 * 1000); // 10 minutes in milliseconds
+      }, 10 * 60 * 1000);
     } catch (error) {
       console.error("Error starting avatar session:", error);
+      // Optionally, update UI to show an error message
     } finally {
       setIsLoadingSession(false);
     }
@@ -127,8 +79,8 @@ export default function InteractiveAvatar() {
 
   async function endSession() {
     if (sessionTimeout) {
-      clearTimeout(sessionTimeout); // Clear the timeout if it exists
-      sessionTimeout = null; // Reset the timeout variable
+      clearTimeout(sessionTimeout);
+      sessionTimeout = null;
     }
     await avatar.current?.stopAvatar();
     setStream(undefined);
@@ -140,127 +92,158 @@ export default function InteractiveAvatar() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   startSession();
-  // }, [avatarId, knowledgeId]);
-
   useEffect(() => {
     if (stream && mediaStream.current) {
       mediaStream.current.srcObject = stream;
       mediaStream.current.onloadedmetadata = () => {
         mediaStream.current!.play();
-        setDebug("Playing");
       };
     }
   }, [mediaStream, stream]);
 
+  const selectedLanguage = STT_LANGUAGE_LIST.find(
+    (lang) => lang.key === language,
+  );
+
   return (
-    <div className="w-full flex flex-col gap-4 p-4 md:p-0">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-        <Select
-          label="Select language"
-          placeholder="Select language"
-          className="w-full md:w-[20%]"
-          selectedKeys={[language]}
-          onChange={(e) => {
-            setLanguage(e.target.value);
-          }}
-        >
-          {STT_LANGUAGE_LIST.map((lang) => (
-            <SelectItem key={lang.key}>{lang.label}</SelectItem>
-          ))}
-        </Select>
-        {/* <div className="flex justify-center flex-grow">
-          <Link isExternal aria-label="RivalSlam" href="https://www.rivalslam.com/">
-            <Image
-              src={"/Santa-R-Logo.png"}
-              alt="rivalista logo"
-              width={170}
-              height={70}
-              style={{
-                width: "40px",
-                height: "auto",
-                maxWidth: "100%"
-              }}
-              className="md:w-[170px]"
-            />
-          </Link>
-        </div> */}
-        <p style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "0.8em", textAlign: "right" }} className="md:w-[20%]">
-          <i>BETA</i>
-        </p>
-      </div>
-      <Card>
-        <CardBody className="h-[300px] md:h-[500px] flex p-0 overflow-hidden">
-          {stream ? (
-            <div className="relative w-full h-full flex justify-center items-center rounded-lg overflow-hidden">
-              <video
-                ref={mediaStream}
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain md:object-cover max-h-[300px] md:max-h-[500px]"
-              >
-                <track kind="captions" />
-              </video>
+    <div className="w-full h-screen grid items-center justify-center">
+      <div className="grid grid-rows-[auto_1fr_auto] w-full h-full">
+        {/* Top Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 justify-items-center lg:justify-items-stretch items-center px-6 py-4 relative z-20 gap-4">
+          {/* Language Selector */}
+          <div className="relative lg:justify-self-start">
+            <button
+              className="flex flex-row items-center justify-between cursor-pointer rounded-lg px-4 py-3 bg-[#9CA4FF] w-[171px] h-[57px]"
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <div>
+                <span className="text-xs font-bold text-[#DCEFF6] text-left block">
+                  Select language
+                </span>
+                <span className="font-bold text-white text-base text-left">
+                  {selectedLanguage?.label || "English"}
+                </span>
+              </div>
+              <Image
+                alt="dropdown arrow"
+                className="ml-2"
+                height={13}
+                src="/figma-assets/dropdown-arrow.png"
+                width={22}
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 mt-1 rounded-lg shadow-lg z-30 bg-[#9CA4FF] w-[171px] max-h-[200px] overflow-y-auto">
+                {STT_LANGUAGE_LIST.map((lang) => (
+                  <button
+                    key={lang.key}
+                    className="w-full text-left px-4 py-2 cursor-pointer hover:bg-opacity-80 text-white"
+                    type="button"
+                    onClick={() => {
+                      setLanguage(lang.key);
+                      setIsDropdownOpen(false);
+                    }}
+                  >
+                    {lang.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Logo */}
+          <div className="flex justify-center relative">
+            <div className="relative w-[200px] h-[87px]">
+              <Image
+                alt="Rivalista Logo"
+                className="object-contain"
+                fill
+                src="/figma-assets/rivalistalogo.svg"
+              />
             </div>
+          </div>
+
+          {/* BETA */}
+          <div className="flex items-center gap-4 lg:justify-self-end">
+            <span className="font-bold text-white text-2xl">
+              BETA
+            </span>
+          </div>
+        </div>
+        {/* Video Player */}
+        <div className="relative w-full h-full px-6">
+          {stream ? (
+            <video
+              ref={mediaStream}
+              autoPlay
+              playsInline
+              className="w-full h-full object-cover"
+              title="Dr. Ann's Avatar"
+            >
+              <track kind="captions" />
+            </video>
           ) : isLoadingSession ? (
-            <div className="flex justify-center items-center w-full h-full">
+            <div className="w-full h-full flex justify-center items-center bg-black bg-opacity-50">
               <Lottie
-                style={{
-                  width: '100px',
-                  height: '100px',
-                  maxWidth: "100%",
-                }}
-                className="max-w-full md:w-[150px] md:h-[150px]"
                 animationData={loadingAnimation}
                 loop={true}
+                style={{ width: "150px", height: "150px" }}
               />
             </div>
-          ) : <div>
-            <div className="relative w-full h-full flex justify-center items-center rounded-lg overflow-hidden">
+          ) : (
+            <div className="relative w-full h-full flex justify-center items-center bg-black bg-opacity-50">
               <Image
-                // src={"/santa-image.webp"}
-                src={"/ann_therepist.webp"}
-                alt="santa image"
-                width={1000}
-                height={1000}
-                className="w-full h-full object-contain md:object-cover"
-                style={{
-                  maxHeight: "100%",
-                }}
+                alt="Ann Therapist"
+                className="w-full h-full object-cover"
+                fill
+                src="/ann_therepist.webp"
+                priority
               />
-            </div>
-          </div>}
-        </CardBody>
-      </Card>
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
-        <p
-          // className={`${unifrakturMaguntia.variable} font-unifraktur text-center md:text-left`}
-          className="text-white text-center md:text-left font-sans text-xl md:text-2xl font-semibold"
-          // style={{
-          //   color: "#6ac640",
-          // }}
-        >
-   <span className="text-lg md:text-2xl" style={{ marginRight: 10 }}>Ann Therapist is in.</span>
-<span className="text-sm md:text-2xl" style={{ marginRight: 10}}>Time to</span>{""}
-<span className="text-lg md:text-2xl">face the facts, fanboy.</span>
-
-        </p>
-        <Button
-  className="bg-white text-black hover:opacity-90 transition-opacity rounded-lg flex flex-col items-start w-full md:w-auto"
-  size="lg"
-          variant="shadow"
-          onPress={isLoadingSession ? () => { } : stream ? endSession : startSession}
-        >
-          {isLoadingSession ? "Loading..." : stream ? "End session" : (
-            <div className="flex items-center justify-center w-full">
-              <i className="fas fa-microphone text-black mr-2" style={{ fontSize: "1.5em" }}></i>
-              <span className="text-center md:text-left">
-                <b style={{ fontSize: "0.9em" }}>START SESSION</b>
-              </span>
             </div>
           )}
-        </Button>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_1fr] items-end lg:items-center px-6 py-4 gap-4 justify-items-center lg:justify-items-stretch">
+          {/* Main Title */}
+          <div className="text-left">
+            <h1 className="font-barlow-condensed font-bold italic leading-tight text-[30px] lg:text-[60px] max-w-4xl">
+              <span className="text-[#9CA4FF]">YOUR </span>
+              <span className="text-white">TRASH TALK THERAPY </span>
+              <span className="text-[#9CA4FF]">BEGINS NOW</span>
+            </h1>
+          </div>
+
+          {/* Action Button */}
+          <div className="w-full lg:flex lg:justify-end">
+            <button
+              className="flex items-center justify-center gap-4 rounded-lg font-bold transition-opacity hover:opacity-90 bg-[#9CA4FF] w-full lg:w-[288px] h-[93px] text-[#DCEFF6] text-[32px] p-4"
+              disabled={isLoadingSession}
+              onClick={isLoadingSession ? () => {} : stream ? endSession : startSession}
+            >
+              {isLoadingSession ? (
+                "Loading..."
+              ) : stream ? (
+                "End session"
+              ) : (
+                <>
+                  <span className="pl-4 text-left leading-none">
+                    TALK TRASH <span className="hidden lg:inline"><br /></span>
+                    WITH DR. ANN
+                  </span>
+                  <Image
+                    alt="button icon"
+                    className="pr-4 h-[40px] w-[32px] lg:h-[79px] lg:w-[64px]"
+                    height={79}
+                    src="/figma-assets/button-icon.svg"
+                    width={64}
+                  />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

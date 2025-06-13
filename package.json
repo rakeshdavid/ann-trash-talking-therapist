@@ -2,15 +2,11 @@
   "name": "next-app-template",
   "version": "0.0.1",
   "private": true,
-  "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
-  },
+
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "vercel-build": "next build",
+    "start": "PORT=3001 next start",
     "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
   },
   "dependencies": {
@@ -33,8 +29,6 @@
     "@react-aria/visually-hidden": "3.8.12",
     "@uiw/codemirror-extensions-langs": "^4.22.1",
     "@uiw/react-codemirror": "^4.22.1",
-    "@vercel/analytics": "^1.1.1",
-    "@vercel/speed-insights": "^1.0.2",
     "ahooks": "^3.8.1",
     "ai": "^3.2.15",
     "clsx": "2.1.1",

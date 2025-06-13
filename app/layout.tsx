@@ -1,14 +1,11 @@
 import "@/styles/globals.css";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
-import Script from 'next/script';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import Script from "next/script";
+import { Fira_Code as FontMono, Inter as FontSans } from "next/font/google";
+import localFont from "next/font/local";
 
 import { Providers } from "./providers";
-
-import { Fira_Code as FontMono, Inter as FontSans, Manrope, UnifrakturMaguntia, Barlow_Condensed } from "next/font/google";
-import NavBar from "@/components/NavBar";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -20,15 +17,31 @@ const fontMono = FontMono({
   variable: "--font-geist-mono",
 });
 
-const manrope = Manrope({
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin"],
+const barlowCondensed = localFont({
+  src: [
+    {
+      path: "../public/fonts/BarlowCondensed-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/BarlowCondensed-Italic.ttf",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "../public/fonts/BarlowCondensed-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/BarlowCondensed-BoldItalic.ttf",
+      weight: "700",
+      style: "italic",
+    },
+  ],
   variable: "--font-barlow-condensed",
-  weight: "700",
+  display: "swap",
 });
 
 // export const metadata: Metadata = {
@@ -52,24 +65,26 @@ const barlowCondensed = Barlow_Condensed({
 
 export const metadata: Metadata = {
   title: "Ann Therapist – Ruthless Sports Therapy Sessions",
-  description: "Get your favorite teams analyzed and annihilated by Ann Therapist. She’s got the sass, the smarts, and zero chill when it comes to your sports obsessions. Therapy has never been this savage.",
+  description:
+    "Get your favorite teams analyzed and annihilated by Ann Therapist. She’s got the sass, the smarts, and zero chill when it comes to your sports obsessions. Therapy has never been this savage.",
   icons: {
-    icon: '/favicon.ico',
+    icon: "/favicon.ico",
   },
-  keywords: 'Ann Therapist, sports roast, witty sports therapy, humorous sports analysis, savage sports commentary',
+  keywords:
+    "Ann Therapist, sports roast, witty sports therapy, humorous sports analysis, savage sports commentary",
   openGraph: {
     title: "Ann Therapist – Savage Sports Therapy",
-    description: "She’s not here to heal—Ann Therapist serves unfiltered sports takedowns with a side of sass. Book your session and get roasted.",
+    description:
+      "She’s not here to heal—Ann Therapist serves unfiltered sports takedowns with a side of sass. Book your session and get roasted.",
     images: [],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: "Ann Therapist – Sports Therapy with a Bite",
-    description: "Tired of biased analysts? Ann tells it like it is. Sharp, witty, and downright ruthless. Your team needs therapy—Ann's style."
+    description:
+      "Tired of biased analysts? Ann tells it like it is. Sharp, witty, and downright ruthless. Your team needs therapy—Ann's style.",
   },
 };
-
-
 
 export const viewport: Viewport = {
   themeColor: [
@@ -86,11 +101,14 @@ export default function RootLayout({
   return (
     <html
       suppressHydrationWarning
+      className={`${fontSans.variable} ${fontMono.variable} ${barlowCondensed.variable} font-barlow-condensed`}
       lang="en"
-      className={`${fontSans.variable} ${fontMono.variable} ${manrope.className} ${barlowCondensed.className}`}
     >
       <head>
-       <Script async src="https://www.googletagmanager.com/gtag/js?id=G-MZG150102B"></Script>
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-MZG150102B"
+        />
         <Script id="gtag-init" strategy="afterInteractive">
           {`window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -100,15 +118,13 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={clsx("min-h-screen bg-background antialiased")}
+        className={clsx("min-h-screen font-sans antialiased")}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <main className="relative flex flex-col h-screen w-screen">
             {/* <NavBar /> */}
             {children}
           </main>
-          <Analytics />
-          <SpeedInsights />
         </Providers>
       </body>
     </html>

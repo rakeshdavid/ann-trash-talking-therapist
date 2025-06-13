@@ -1,5 +1,7 @@
 export function HeyGenLogo() {
-  return <img src="/maslow-logo-light.webp" className="h-8" alt="HeyGen Logo" />;
+  return (
+    <img alt="HeyGen Logo" className="h-8" src="/maslow-logo-light.webp" />
+  );
 }
 
 type IconSvgProps = {

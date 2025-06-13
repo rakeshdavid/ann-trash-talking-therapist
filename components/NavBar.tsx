@@ -9,8 +9,9 @@ import {
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { ThemeSwitch } from "./ThemeSwitch";
 import { useEffect, useState } from "react";
+
+import { ThemeSwitch } from "./ThemeSwitch";
 
 export default function NavBar() {
   const { theme } = useTheme();
@@ -20,25 +21,19 @@ export default function NavBar() {
     setMounted(true);
   }, []);
 
-  const logoSrc = mounted && theme === "dark"
-    ? "/maslow-logo-dark.webp"
-    : "/maslow-logo-light.webp";
+  const logoSrc =
+    mounted && theme === "dark"
+      ? "/maslow-logo-dark.webp"
+      : "/maslow-logo-light.webp";
 
   return (
     <Navbar className="w-full">
       <NavbarBrand>
         <Link isExternal aria-label="Maslow" href="https://maslow.ai/">
-          <Image
-            src={logoSrc}
-            alt="Maslow Logo"
-            width={170}
-            height={70}
-          />
+          <Image alt="Maslow Logo" height={70} src={logoSrc} width={170} />
         </Link>
         <div className="bg-gradient-to-r from-[#EE7BB3] to-[#6DC4AD] bg-clip-text ml-4">
-          <p className="text-xl font-semibold text-transparent">
-            Fusion Face
-          </p>
+          <p className="text-xl font-semibold text-transparent">Fusion Face</p>
         </div>
       </NavbarBrand>
       <NavbarContent justify="center">

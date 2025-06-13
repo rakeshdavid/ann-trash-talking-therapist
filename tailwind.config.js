@@ -1,4 +1,4 @@
-const { nextui } = require('@nextui-org/theme');
+import {nextui} from '@nextui-org/theme'
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Barlowe', 'sans-serif'],
+        sans: ["var(--font-barlow-condensed)"],
         mono: ["var(--font-geist-mono)"],
         unifraktur: ["var(--font-unifraktur-maguntia)"],
       },
