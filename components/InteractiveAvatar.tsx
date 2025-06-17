@@ -197,7 +197,7 @@ export default function InteractiveAvatar() {
                 alt="Ann Therapist"
                 className="w-full h-full object-cover"
                 fill
-                src="/ann_therepist.webp"
+                src="/Alessandra.png"
                 priority
               />
             </div>
